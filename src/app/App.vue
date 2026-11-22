@@ -6,7 +6,7 @@ import { PantryPanel } from "../features/pantry";
 import { KitchenPanel } from "../features/kitchen";
 import { ServicePanel } from "../features/service";
 import { LedgerPanel, ResultOverlay, totals } from "../features/ledger";
-const { game, toggle, restart } = useSession();
+const { game, toggle, restart, archives } = useSession();
 </script>
 <template>
   <div class="app-shell">
@@ -99,6 +99,6 @@ const { game, toggle, restart } = useSession();
         >
       </footer>
     </main>
-    <ResultOverlay :game="game" @restart="restart" />
+    <ResultOverlay :game="game" :archives="archives" @restart="restart" />
   </div>
 </template>

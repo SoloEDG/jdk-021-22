@@ -2,8 +2,16 @@ import { reactive, onUnmounted } from "vue";
 import { createGame } from "../shared/initial";
 import { expire, arrive } from "../features/orders";
 import { closeShift, saveBest, readBest } from "../features/ledger";
+import {
+  archiveRound,
+  saveArchive,
+  loadArchives,
+  type RoundArchive,
+} from "../features/diagnosis";
+
 export function useSession() {
   const game = reactive(createGame(readBest()));
+  const archives = reactive<RoundArchive[]>(loadArchives());
   let last = performance.now(),
     carry = 0;
   const timer = setInterval(() => {
@@ -21,6 +29,10 @@ export function useSession() {
       expire(game);
       if (Math.round(game.time * 10) % 180 === 0) arrive(game);
       if (game.time >= game.duration) {
+        // 先归档（保留完整账本与流水），再做打烊清理与历史最佳更新
+        const snapshot = archiveRound(game);
+        const updated = saveArchive(snapshot);
+        archives.splice(0, archives.length, ...updated);
         closeShift(game);
         saveBest(game);
       }
@@ -41,5 +53,5 @@ export function useSession() {
     carry = 0;
     last = performance.now();
   }
-  return { game, toggle, restart };
+  return { game, toggle, restart, archives };
 }

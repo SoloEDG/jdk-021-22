@@ -17,8 +17,8 @@ export function cook(g: Game, portion: number, stove: number) {
 export function lift(g: Game, id: number) {
   const s = g.stoves.find((s) => s.id === id);
   if (!s?.portion) return;
-  if (g.dishes.length >= 8) {
-    g.notice = "出餐台已满，请先上菜或丢弃";
+  if (g.dishes.length >= g.dishCap) {
+    g.notice = `出餐台已满（${g.dishCap}份），请先上菜或丢弃`;
     return;
   }
   const p = s.portion,

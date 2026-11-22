@@ -26,15 +26,19 @@ export function expire(g: Game) {
   }
 }
 export function arrive(g: Game) {
-  if (g.time >= 150 || activeOrders(g).length >= 6) return;
-  const seq = Math.floor(g.time / 18);
-  const list = ["steak", "pasta", "salad"] as const;
-  g.orders.push({
-    id: g.nextId++,
-    recipe: list[seq % 3],
-    guest: ["阿宁", "许小姐", "赵先生", "晓晴"][seq % 4],
-    arrived: g.time,
-    deadline: g.time + 60 + (seq % 3) * 5,
-    status: "waiting",
-  });
+  if (activeOrders(g).length >= 6) return;
+  const due = g.arrivalPlan.filter(
+    (a) => Math.round(a.arrived * 10) === Math.round(g.time * 10),
+  );
+  for (const spec of due) {
+    if (g.orders.some((o) => o.id === spec.id)) continue;
+    g.orders.push({
+      id: spec.id,
+      recipe: spec.recipe,
+      guest: spec.guest,
+      arrived: spec.arrived,
+      deadline: spec.deadline,
+      status: "waiting",
+    });
+  }
 }
